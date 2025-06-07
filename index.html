@@ -814,6 +814,31 @@
             calculateTotal()
             totalYardsCut();
         }
+
+        function saveLog() {
+            const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
+            const yardNames = Array.from(document.querySelectorAll('h3')).map(h3 => h3.textContent.trim());
+            const cutYards = [];
+            for (let i = 0; i < cutCheckboxes.length; i++) {
+                if (cutCheckboxes[i].checked) {
+                    cutYards.push(yardNames[i]);
+                }
+            }
+            const today = new Date().toLocaleDateString();
+            let logs = JSON.parse(localStorage.getItem('yardLogs') || '{}');
+            logs[today] = cutYards;
+            localStorage.setItem('yardLogs', JSON.stringify(logs));
+            alert('Log saved for ' + today);
+        }
+
+        function showLogs() {
+            let logs = JSON.parse(localStorage.getItem('yardLogs') || '{}');
+            let html = '<h4 style="color:rgb(194, 194, 194); margin-bottom: 8px;">History:</h4>';
+            for (let date in logs) {
+                html += `<b>${date}:</b> ${logs[date].join(', ') || 'None'}<br>`;
+            }
+            document.getElementById('logs-box').innerHTML = html;
+        }
     </script>
 
     <br>
@@ -842,7 +867,7 @@
 
     <br>
 
-    <h5 style="color:rgb(194, 194, 194); margin-bottom: 8px;">Pay:</h5>
+    <h4 style="color:rgb(194, 194, 194); margin-bottom: 8px;">Pay:</h4>
 
     <div id="total-box" class="centered-box" 
     style="
@@ -890,10 +915,47 @@
     padding: 6px 18px; 
     font-size: 16px;">
     Reset
-
-
 </button>
-    <br>
+
+<br>
+
+<!-- Add this button at the bottom, above </div> -->
+<button onclick="saveLog()" 
+    class="centered-box" 
+    style="display:block; 
+    background-color: rgb(61,61,61); 
+    color: rgb(194, 194, 194); 
+    border: 2px solid rgb(194, 194, 194); 
+    border-radius: 6px; 
+    padding: 6px 18px; 
+    font-size: 16px;">
+    Save Yards
+</button>
+
+<br>
+
+<button onclick="showLogs()" 
+    class="centered-box" 
+    style="display:block; 
+    background-color: rgb(61,61,61); 
+    color: rgb(194, 194, 194); 
+    border: 2px solid rgb(194, 194, 194); 
+    border-radius: 6px; 
+    padding: 6px 18px; 
+    font-size: 16px;">
+    Show History
+</button>
+
+<br>
+
+<div id="logs-box" class="centered-box" style="margin-top:10px; color:rgb(194,194,194);"></div>
+
+<br>
+<br>
+<br>
+<br>
+<br>
+
 </div>
 </body>
 </html>
