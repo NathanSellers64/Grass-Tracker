@@ -3,32 +3,35 @@
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style>
-    body {background-color: rgb(112, 112, 112);}
+    body {background-color: rgba(89, 139, 204, 0.959);}
     h1 {
         text-align: center; 
         font-family: verdana, sans-serif; 
-        color:rgb(3, 17, 3); 
-        background-image: url("images/banner2.png"); 
+        color:rgb(89, 139, 204); 
+        /*background-image: url("images/banner2.png");*/
         margin: 0; 
-        padding: 20px; 
+        padding: 18px; 
         background-repeat: repeat-x; 
         background-size: 75px 75px; 
         background-position: center;
-        text-shadow: rgba(0, 0, 0, 0.671) 2px 2px 2px;
+        border-radius: 20px;
+        text-shadow: 0 0px 8px rgb(0,0,0);
     }
     h3, h4 {
         text-align: center; 
         font-family: verdana, sans-serif; 
-        color:rgb(27, 39, 27);
+        color:rgb(200, 224, 255);
         margin-bottom: 0;
+        text-shadow: 0 0px 6px rgb(0,0,0);
     }
     p {
         text-align: center; 
         font-family: verdana, sans-serif; 
-        color:rgb(165, 165, 165); 
+        color:rgba(118, 167, 231, 0.719); 
         font-size: 9px;
         margin-top: 2px;
         margin-bottom: 8px;
+        text-shadow: 0 0px 6px rgb(0,0,0);
     }
     label {
         display: block; 
@@ -63,1016 +66,1583 @@
     #clear-modal > div {
         border-radius: 12px !important;
     }
+    input[type="checkbox"].cut-checkbox {
+        accent-color: rgb(61,61,61);
+        width: 18px;
+        height: 18px;
+        border-radius: 4px;
+        border: 2px solid rgb(0, 0, 0);
+        background: rgb(61,61,61);
+        vertical-align: middle;
+    }
+    .yard-block {
+        margin-bottom: 32px;
+    }
+    .yard-select-box {
+        background: rgb(15, 44, 82);
+        border-radius: 12px;
+        padding: 16px 10px 10px 10px;
+        margin-bottom: 32px;
+        box-shadow: 0 0px 16px rgb(0, 0, 0);
+        cursor: pointer;
+        transition: 
+            box-shadow 0.18s, 
+            border-color 0.18s, 
+            background 0.18s;
+        position: relative;
+    }
+    .yard-select-box.checked {
+        background: rgb(12, 34, 63);
+        box-shadow: inset 0 4px 18px #000c, inset 0 1px 8px #222;
+    }
+    .cut-indicator {
+        display: none !important;
+    }
+    /* Darken text and contents when checked */
+    .yard-select-box.checked,
+    .yard-select-box.checked h3,
+    .yard-select-box.checked p,
+    .yard-select-box.checked label,
+    .yard-select-box.checked a,
+    .yard-select-box.checked input {
+        color: rgba(200, 224, 255, 0.658) !important;
+        filter: brightness(0.7);
+        /* You can adjust brightness or use a different color if you want */
+    }
     </style>
     <title>Grass Tracker Pro</title>
 </head>
 <script>
-        function calculateTotal() {
-            let total = 0;
-            const amountInputs = document.querySelectorAll('.amount-input');
-            const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
-
-            for (let i = 0; i < amountInputs.length; i++) {
-                if (cutCheckboxes[i].checked) {
-                    total += parseInt(amountInputs[i].value, 10) || 0;
-                }
+    function calculateTotal() {
+        let total = 0;
+        const amountInputs = document.querySelectorAll('.amount-input');
+        const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
+        for (let i = 0; i < amountInputs.length; i++) {
+            if (cutCheckboxes[i].checked) {
+                total += parseInt(amountInputs[i].value, 10) || 0;
             }
-
-            let myCut = total * 0.3;
-            let coopersCut = total - myCut;
-
-            document.getElementById('total-box').innerText = "Total: $" + total;
-            document.getElementById('mycut-box').innerText = "My Cut: $" + myCut;
-            document.getElementById('cooperscut-box').innerText = "Cooper's Cut: $" + coopersCut;
         }
-        function totalYardsCut() {
-            let yardsCut = 0;
-            const cutCheckboxes = document.querySelectorAll('.cut-checkbox')
-
-            for(let i=0; i < cutCheckboxes.length; i++) {
-                if (cutCheckboxes[i].checked) {
-                    yardsCut+=1;
-                }
+        let myCut = total * 0.3;
+        let coopersCut = total - myCut;
+        document.getElementById('total-box').innerText = "Total: $" + total;
+        document.getElementById('mycut-box').innerText = "My Cut: $" + myCut;
+        document.getElementById('cooperscut-box').innerText = "Cooper's Cut: $" + coopersCut;
+    }
+    function totalYardsCut() {
+        let yardsCut = 0;
+        const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
+        for(let i=0; i < cutCheckboxes.length; i++) {
+            if (cutCheckboxes[i].checked) {
+                yardsCut+=1;
             }
-            document.getElementById('yardscut-box').innerText = "Yards Cut: " + yardsCut;
         }
-        function totalYards() {
-            const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
-            document.getElementById('totalyards-box').innerText = "Total Yards: " + cutCheckboxes.length;
+        document.getElementById('yardscut-box').innerText = "Yards Cut: " + yardsCut;
+    }
+    function totalYards() {
+        const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
+        document.getElementById('totalyards-box').innerText = "Total Yards: " + cutCheckboxes.length;
+    }
+    window.onload = function() {
+        document.querySelectorAll('.cut-checkbox, .amount-input').forEach(function(el) {
+            el.addEventListener('input', calculateTotal);
+            el.addEventListener('change', calculateTotal);
+            el.addEventListener('input', totalYardsCut);
+            el.addEventListener('change', totalYardsCut);
+        });
+        totalYards();
+        calculateTotal();
+        totalYardsCut();
+        showLogs();
+    }
+    function resetCheckboxes() {
+        document.querySelectorAll('.cut-checkbox').forEach(function(cb) {
+            cb.checked = false;
+            if (cb.closest('.yard-select-box')) {
+                cb.closest('.yard-select-box').classList.remove('checked');
+            }
+        });
+        calculateTotal();
+        totalYardsCut();
+    }
+    function saveLog() {
+        const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
+        const yardNames = Array.from(document.querySelectorAll('h3')).map(h3 => h3.textContent.trim());
+        let cutYards = [];
+        for (let i = 0; i < cutCheckboxes.length; i++) {
+            if (cutCheckboxes[i].checked) {
+                if (!cutCheckboxes[i].dataset.cutTime) {
+                    cutCheckboxes[i].dataset.cutTime = Date.now();
+                }
+                cutYards.push({ name: yardNames[i], time: Number(cutCheckboxes[i].dataset.cutTime) });
+            } else {
+                cutCheckboxes[i].dataset.cutTime = '';
+            }
         }
-
-        window.onload = function() {
-            document.querySelectorAll('.cut-checkbox, .amount-input').forEach(function(el) {
-                el.addEventListener('input', calculateTotal);
-                el.addEventListener('change', calculateTotal);
-                el.addEventListener('input', totalYardsCut);
-                el.addEventListener('change', totalYardsCut);
+        cutYards.sort((a, b) => a.time - b.time);
+        let dateInput = document.getElementById('effective-date');
+        let date = (dateInput && dateInput.value.trim()) ? dateInput.value.trim() : new Date().toLocaleDateString();
+        let logs = JSON.parse(localStorage.getItem('yardLogs') || '{}');
+        logs[date] = cutYards.map(y => y.name);
+        localStorage.setItem('yardLogs', JSON.stringify(logs));
+        showLogs();
+    }
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.cut-checkbox').forEach(function(cb) {
+            cb.addEventListener('change', function() {
+                if (cb.checked && !cb.dataset.cutTime) {
+                    cb.dataset.cutTime = Date.now();
+                } else if (!cb.checked) {
+                    cb.dataset.cutTime = '';
+                }
             });
-            totalYards();
-            calculateTotal();
-            totalYardsCut();
-            showLogs();
-        }
-
-        function resetCheckboxes() {
-            document.querySelectorAll('.cut-checkbox').forEach(function(cb) {
-                cb.checked = false;
-            });
-            calculateTotal()
-            totalYardsCut();
-        }
-
-        function saveLog() {
-            const cutCheckboxes = document.querySelectorAll('.cut-checkbox');
+        });
+        document.querySelectorAll('.amount-input').forEach(function(input) {
+            function resize() {
+                const span = document.createElement('span');
+                span.style.visibility = 'hidden';
+                span.style.position = 'fixed';
+                span.style.font = window.getComputedStyle(input).font;
+                span.textContent = input.value || input.placeholder || '';
+                document.body.appendChild(span);
+                input.style.width = (span.offsetWidth + 16) + 'px';
+                document.body.removeChild(span);
+            }
+            input.addEventListener('input', resize);
+            resize();
+        });
+    });
+    function showLogs() {
+        let logs = JSON.parse(localStorage.getItem('yardLogs') || '{}');
+        let html = '<h2 style="color:rgb(200, 224, 255); margin-bottom: 8px;">History</h2>';
+        let dates = Object.keys(logs).sort((a, b) => new Date(b) - new Date(a));
+        if (dates.length === 0) {
+            html += '<div style="margin-top:10px;">No history yet.</div>';
+        } else {
             const yardNames = Array.from(document.querySelectorAll('h3')).map(h3 => h3.textContent.trim());
-            let cutYards = [];
-            for (let i = 0; i < cutCheckboxes.length; i++) {
-                if (cutCheckboxes[i].checked) {
-                    if (!cutCheckboxes[i].dataset.cutTime) {
-                        cutCheckboxes[i].dataset.cutTime = Date.now();
-                    }
-                    cutYards.push({ name: yardNames[i], time: Number(cutCheckboxes[i].dataset.cutTime) });
-                } else {
-                    cutCheckboxes[i].dataset.cutTime = '';
-                }
+            const amountInputs = Array.from(document.querySelectorAll('.amount-input'));
+            let yardAmountMap = {};
+            for (let i = 0; i < yardNames.length; i++) {
+                yardAmountMap[yardNames[i]] = parseInt(amountInputs[i].value, 10) || 0;
             }
-            cutYards.sort((a, b) => a.time - b.time);
-
-            // Use effective date if provided, else use today
-            let dateInput = document.getElementById('effective-date');
-            let date = (dateInput && dateInput.value.trim()) ? dateInput.value.trim() : new Date().toLocaleDateString();
-
+            for (let date of dates) {
+                let total = 0;
+                (logs[date] || []).forEach(name => {
+                    total += yardAmountMap[name] || 0;
+                });
+                let myCut = Math.round(total * 0.3 * 100) / 100;
+                let coopersCut = Math.round((total - myCut) * 100) / 100;
+                html += `
+                    <div style="margin:18px 0; position:relative; display:inline-block; background:rgb(15, 44, 82); border-radius:18px; padding:24px 18px; box-shadow:0 0px 16px rgb(0,0,0); min-width:260px;">
+                        <button onclick="deleteLogDate('${date.replace(/'/g, "\\'")}')" title="Delete this date" style="
+                            position:absolute;
+                            top:10px;
+                            right:10px;
+                            background:rgb(61,61,61);
+                            color:rgb(200, 224, 255);
+                            border:rgb(100,100,100) 2px solid;
+                            border-radius:50%;
+                            width:28px;
+                            height:28px;
+                            font-size:18px;
+                            font-weight:bold;
+                            cursor:pointer;
+                            box-shadow:0 3px 6px #0005;
+                            z-index:2;
+                        ">&times;</button>
+                        <div style="text-align:center;font-weight:bold;font-size:1.1em;color:rgb(2);">${date}</div>
+                        <br>
+                        <div style="
+                            display: inline-block;
+                            padding: 0 14px;
+                            margin: 10px auto 0 auto;
+                            border: 2.5px solid rgb(100,100,100);
+                            line-height: 25px;
+                            color: rgb(200, 224, 255);
+                            background-color: rgb(61,61,61);
+                            border-radius: 8px;
+                            font-weight:bold;
+                            text-shadow: 0 0px 4px rgb(0,0,0);
+                            box-shadow: 0 0px 16px rgb(0,0,0);">
+                            ${logs[date].map(name => `<div>${name}</div>`).join('')}
+                        </div>
+                        <br>
+                        <br>
+                        <div style="
+                            border: 2.5px solid rgb(100,100,100); 
+                            display: inline-block; 
+                            padding: 0 14px; 
+                            line-height: 25px; 
+                            color:rgb(200, 224, 255); 
+                            background-color: rgb(61,61,61); 
+                            font-weight:bold; 
+                            border-radius: 12px;
+                            text-shadow: 0 0px 4px rgb(0,0,0);
+                            box-shadow: 0 0px 16px rgb(0,0,0);">
+                            Total: $${total}
+                        </div>
+                        <br>
+                        <br>
+                        <div style="
+                            border: 2.5px solid rgb(61, 167, 0); 
+                            display: inline-block; 
+                            padding: 0 14px; 
+                            line-height: 25px; 
+                            color:rgb(200, 224, 255); 
+                            background-color: rgb(61, 167, 0); 
+                            font-weight:bold; 
+                            border-radius: 12px;
+                            text-shadow: 0 0px 4px rgb(0,0,0);
+                            box-shadow: 0 0px 16px rgb(0,0,0);">
+                            My Cut: $${myCut}
+                        </div>
+                        <br>
+                        <br>
+                        <div style="
+                            border: 2.5px solid rgb(167, 0, 0); 
+                            display: inline-block; 
+                            padding: 0 14px; 
+                            line-height: 25px; 
+                            color:rgb(200, 224, 255); 
+                            background-color: rgb(167, 0, 0); 
+                            font-weight:bold; 
+                            border-radius: 12px;
+                            text-shadow: 0 0px 4px rgb(0,0,0);
+                            box-shadow: 0 0px 16px rgb(0,0,0);">
+                            Cooper's Cut: $${coopersCut}
+                        </div>
+                    </div>
+                `;
+            }
+        }
+        document.getElementById('logs-box').innerHTML = `
+<div style="
+    display: inline-block;
+    background: rgb(5, 31, 63);
+    border-radius: 18px;
+    padding: 24px 18px;
+    box-shadow: 0 8px 32px rgb(0,0,0);
+    margin: 0 auto;
+">
+    ${html}
+</div>`;
+    }
+    function clearLogs() {
+        document.getElementById('clear-modal').style.display = 'block';
+    }
+    function closeClearModal() {
+        document.getElementById('clear-modal').style.display = 'none';
+    }
+    function confirmClearLogs() {
+        localStorage.removeItem('yardLogs');
+        document.getElementById('logs-box').innerHTML = '<div style="margin-top:10px;">No history yet.</div>';
+        closeClearModal();
+    }
+    let pendingDeleteDate = null;
+    function deleteLogDate(date) {
+        pendingDeleteDate = date;
+        document.getElementById('delete-modal').style.display = 'block';
+    }
+    function confirmDeleteLogDate() {
+        if (pendingDeleteDate) {
             let logs = JSON.parse(localStorage.getItem('yardLogs') || '{}');
-            logs[date] = cutYards.map(y => y.name);
+            delete logs[pendingDeleteDate];
             localStorage.setItem('yardLogs', JSON.stringify(logs));
             showLogs();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.cut-checkbox').forEach(function(cb) {
-                cb.addEventListener('change', function() {
-                    if (cb.checked && !cb.dataset.cutTime) {
-                        cb.dataset.cutTime = Date.now();
-                    } else if (!cb.checked) {
-                        cb.dataset.cutTime = '';
-                    }
-                });
-            });
-        });
-
-        function showLogs() {
-            let logs = JSON.parse(localStorage.getItem('yardLogs') || '{}');
-            let html = '<h2 style="color:rgb(210, 210, 210); margin-bottom: 8px;">History</h2>';
-            let dates = Object.keys(logs).sort((a, b) => new Date(b) - new Date(a));
-            if (dates.length === 0) {
-                html += '<div style="margin-top:10px;">No history yet.</div>';
-            } else {
-                const yardNames = Array.from(document.querySelectorAll('h3')).map(h3 => h3.textContent.trim());
-                const amountInputs = Array.from(document.querySelectorAll('.amount-input'));
-                let yardAmountMap = {};
-                for (let i = 0; i < yardNames.length; i++) {
-                    yardAmountMap[yardNames[i]] = parseInt(amountInputs[i].value, 10) || 0;
-                }
-
-                for (let date of dates) {
-                    let total = 0;
-                    (logs[date] || []).forEach(name => {
-                        total += yardAmountMap[name] || 0;
-                    });
-                    let myCut = Math.round(total * 0.3 * 100) / 100;
-                    let coopersCut = Math.round((total - myCut) * 100) / 100;
-
-                    html += `
-                        <div style="margin:18px 0; position:relative; display:inline-block; background:rgb(100,100,100); border-radius:18px; padding:24px 18px; box-shadow:0 4px 16px #0003; min-width:260px;">
-                            <button onclick="deleteLogDate('${date.replace(/'/g, "\\'")}')" title="Delete this date" style="
-                                position:absolute;
-                                top:10px;
-                                right:10px;
-                                background:rgb(61,61,61);
-                                color:white;
-                                border:white 2px solid;
-                                border-radius:50%;
-                                width:28px;
-                                height:28px;
-                                font-size:18px;
-                                font-weight:bold;
-                                cursor:pointer;
-                                box-shadow:0 3px 6px #0005;
-                                z-index:2;
-                            ">&times;</button>
-                            <div style="text-align:center;font-weight:bold;font-size:1.1em;color:rgb(2);">${date}</div>
-                            <br>
-                            <div style="
-                                display: inline-block;
-                                padding: 0 14px;
-                                margin: 10px auto 0 auto;
-                                border: 2.5px solid rgb(210, 210, 210);
-                                line-height: 25px;
-                                color: rgb(210,210,210);
-                                background-color: rgb(61,61,61);
-                                border-radius: 8px;
-                                font-weight:bold;">
-                                ${logs[date].map(name => `<div>${name}</div>`).join('')}
-                            </div>
-                            <br>
-                            <div style="
-                                display: inline-block;
-                                padding: 0 14px;
-                                margin: 10px auto 0 auto;
-                                border: 2.5px solid rgb(210, 210, 210);
-                                line-height: 25px;
-                                color: rgb(210,210,210);
-                                background-color: rgb(61,61,61);
-                                border-radius: 8px;
-                                font-weight:bold;">
-                                Total: $${total}
-                            </div>
-                            <br>
-                            <div style="
-                                display: inline-block;
-                                padding: 0 14px;
-                                margin: 10px auto 0 auto;
-                                border: 2.5px solid rgb(94, 255, 0);
-                                line-height: 25px;
-                                color: rgb(94,255,0);
-                                background-color: rgb(61,61,61);
-                                border-radius: 8px;
-                                font-weight:bold;">
-                                My Cut: $${myCut}
-                            </div>
-                            <br>
-                            <div style="
-                                display: inline-block;
-                                padding: 0 14px;
-                                margin: 10px auto 0 auto;
-                                border: 2.5px solid rgb(255, 0, 0);
-                                line-height: 25px;
-                                color: rgb(255,0,0);
-                                background-color: rgb(61,61,61);
-                                border-radius: 8px;
-                                font-weight:bold;">
-                                Cooper's Cut: $${coopersCut}
-                            </div>
-                        </div>
-                    `;
-                }
-            }
-            document.getElementById('logs-box').innerHTML = `
-            <div style="
-            display: inline-block;
-            background: rgb(3, 17, 3);
-            border-radius: 18px;
-            padding: 24px 18px;
-            box-shadow: 0 4px 16px #0003;
-            margin: 0 auto;">
-            ${html}
-            </div>`;
-        }
-
-        function clearLogs() {
-            document.getElementById('clear-modal').style.display = 'block';
-        }
-
-        function closeClearModal() {
-            document.getElementById('clear-modal').style.display = 'none';
-        }
-
-        function confirmClearLogs() {
-            localStorage.removeItem('yardLogs');
-            document.getElementById('logs-box').innerHTML = '<div style="margin-top:10px;">No history yet.</div>';
-            closeClearModal();
-        }
-
-        document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.amount-input').forEach(function(input) {
-                function resize() {
-                    const span = document.createElement('span');
-                    span.style.visibility = 'hidden';
-                    span.style.position = 'fixed';
-                    span.style.font = window.getComputedStyle(input).font;
-                    span.textContent = input.value || input.placeholder || '';
-                    document.body.appendChild(span);
-                    input.style.width = (span.offsetWidth + 16) + 'px';
-                    document.body.removeChild(span);
-                }
-                input.addEventListener('input', resize);
-                resize();
-            });
-        });
-
-        let pendingDeleteDate = null;
-
-        function deleteLogDate(date) {
-            pendingDeleteDate = date;
-            document.getElementById('delete-modal').style.display = 'block';
-        }
-
-        function confirmDeleteLogDate() {
-            if (pendingDeleteDate) {
-                let logs = JSON.parse(localStorage.getItem('yardLogs') || '{}');
-                delete logs[pendingDeleteDate];
-                localStorage.setItem('yardLogs', JSON.stringify(logs));
-                showLogs();
-                pendingDeleteDate = null;
-            }
-            document.getElementById('delete-modal').style.display = 'none';
-        }
-
-        function closeDeleteModal() {
             pendingDeleteDate = null;
-            document.getElementById('delete-modal').style.display = 'none';
         }
+        document.getElementById('delete-modal').style.display = 'none';
+    }
+    function closeDeleteModal() {
+        pendingDeleteDate = null;
+        document.getElementById('delete-modal').style.display = 'none';
+    }
+    function toggleYardCheck(element) {
+        const checkbox = element.querySelector('.cut-checkbox');
+        checkbox.checked = !checkbox.checked;
+        element.classList.toggle('checked', checkbox.checked);
+        checkbox.dispatchEvent(new Event('change', { bubbles: true }));
+    }
 </script>
 <body>
 <div class="phone-container">
-
-    <h1>Grass Tracker Pro</h1>
-
-    <br>
-    <br>
-    <div id="totalyards-box" class="centered-box"
-    style="
-    border: 2.5px solid rgb(210, 210, 210); 
+<br>
+<div style="
     display: inline-block;
-    padding: 0 14px;
-    line-height: 25px; 
-    color:rgb(210, 210, 210);
-    background-color: rgb(61,61,61);
-    font-weight:bold;
-    border-radius: 12px;">
+    background: rgb(5, 31, 63);
+    border-radius: 18px;
+    padding: 0px 0px;
+    margin: 0 auto;
+    margin-bottom: 24px;
+    box-shadow: 0 0px 32px rgb(0,0,0);">
+    <h1>Grass Tracker Pro</h1>
+</div>
+<br>
+<div style="
+    display: inline-block;
+    background: rgb(5, 31, 63);
+    border-radius: 18px;
+    padding: 0px 32px;
+    box-shadow: 0 8px 32px rgb(0, 0, 0);
+    margin: 0 auto;
+    margin-bottom: 24px;">
+
+    <br>
+    <br>
+
+    <div id="totalyards-box" class="centered-box"
+        style="
+        border: 2.5px solid rgb(100,100,100); 
+        display: inline-block; 
+        padding: 0 14px; 
+        line-height: 25px; 
+        color:rgb(200, 224, 255); 
+        background-color: rgb(61,61,61); 
+        font-weight:bold; 
+        border-radius: 12px;
+        text-shadow: 0 0px 4px rgb(0,0,0);
+        box-shadow: 0 0px 16px rgb(0,0,0);">
         Total Yards: 0
     </div>
+
+    <br>
     <br>
     <br>
 
-    <h3>Oakleigh
-        <a href="https://maps.apple.com/?address=38353+Oakleigh+Ln,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>Oakleigh</h3>
     <p>38353 Oakleigh Ln</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>2nd Grade Teacher
-        <a href="https://maps.apple.com/?address=14480+Caribbean+Dr,Gonzales,LA">
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="40"
+                style="
+                    border: 2.5px solid rgb(100,100,100); 
+                    display: inline-block; 
+                    padding: 0 0px; 
+                    line-height: 25px; 
+                    color:rgb(200, 224, 255); 
+                    background-color: rgb(61,61,61); 
+                    font-weight:bold; 
+                    border-radius: 12px;
+                    text-shadow: 0 0px 4px rgb(0,0,0);
+                    box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=38353+Oakleigh+Ln,Prairieville,LA" style="display:inline-block;">
             <img 
                 src="images/transparent_locate.png"
                 width="25"
                 height="25"
                 alt="Locate"
-                style="transform: translate(0px,5px);">
+                style="transform: translate(0px,3px);">
         </a>
-    </h3>
-    <p>14480 Caribbean Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Toy Plane
-        <a href="https://maps.apple.com/?address=11075+Cambre+Oaks+Dr,Gonzales,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>11075 Cambre Oaks Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Coopers Sister
-        <a href="https://maps.apple.com/?address=324+S+Iberville+Ave,Gonzales,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>324 S Iberville Ave</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Lanoux
-        <a href="https://maps.apple.com/?address=1120+S+Lanoux+Ave,Gonzales,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>1120 S Lanoux Ave</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Onion
-        <a href="https://maps.apple.com/?address=12092+Cypress+Ridge+Dr,Geismar,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>12092 Cypress Ridge Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>BBL
-        <a href="https://maps.apple.com/?address=13379+Belle+Reine+Dr,Geismar,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>13379 Belle Reine Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="50"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Cable
-        <a href="https://maps.apple.com/?address=14027+Deep+Creek+Dr,Gonzales,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>14027 Deep Creek Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="50"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Flower Beds
-        <a href="https://maps.apple.com/?address=14479+Garnet+Ave,Gonzales,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>14479 Garnet Ave</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Manchac
-        <a href="https://maps.apple.com/?address=18285+Manchac+Pl+S,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>18285 Manchac Pl S</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="50"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Stuff in the Way
-        <a href="https://maps.apple.com/?address=36317+Cedar+Wood+Dr,Geismar,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>36317 Cedar Wood Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>No Window Door
-        <a href="https://maps.apple.com/?address=37343+Tilburg+Pass,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>37343 Tilburg Pass</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Blue House
-        <a href="https://maps.apple.com/?address=37412+E+Hillside+Dr,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>37412 E Hillside Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Bad Ditches
-        <a href="https://maps.apple.com/?address=38357+Dixie+Dr,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>38357 Dixie Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Backout
-        <a href="https://maps.apple.com/?address=42316+Bayou+Narcisse+Rd,Gonzales,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>42316 Bayou Narcisse Rd</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="50"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Slant
-        <a href="https://maps.apple.com/?address=13379+Belle+Reine+Dr,Geismar,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>13379 Belle Reine Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Coach
-        <a href="https://maps.apple.com/?address=39490+Rue+Royale,Gonzales,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>39490 Rue Royale</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Cooper Mom
-        <a href="https://maps.apple.com/?address=17566+Morsewood+Dr,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>17566 Morsewood Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="50"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Fishing Rod
-        <a href="https://maps.apple.com/?address=17490+Soaring+Flight+Dr,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>17490 Soaring Flight Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="50"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Rich Neighborhood
-        <a href="https://maps.apple.com/?address=Kaylin+Cove,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>Kaylin Cove</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="100"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Mt. Everest
-        <a href="https://maps.apple.com/?address=18532+Lake+Harbor+Ln,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>18532 Lake Harbor Ln</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="50"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>New Weedeater
-        <a href="https://maps.apple.com/?address=40020+Maddie+Dr,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>40020 Maddie Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>New Weedeater Dad
-        <a href="https://maps.apple.com/?address=40110+Todd+Dr,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>40110 Todd Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="30"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Two Driveway
-        <a href="https://maps.apple.com/?address=38331+Ibis+Ave,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>38331 Ibis Ave</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Megan
-        <a href="https://maps.apple.com/?address=17232+Chenier+Dr,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>17232 Chenier Dr</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Mountain
-        <a href="https://maps.apple.com/?address=37165+Cobblestone+Ave,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>37165 Cobblestone Ave</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-    <h3>Mr. Jermey
-        <a href="https://maps.apple.com/?address=40152+Reese+Ln,Prairieville,LA">
-            <img 
-                src="images/transparent_locate.png"
-                width="25"
-                height="25"
-                alt="Locate"
-                style="transform: translate(0px,5px);">
-        </a>
-    </h3>
-    <p>40152 Reese Ln</p>
-    <label>
-        <span style="font-weight:bold;">Amount:</span> 
-        <input 
-            type="number" 
-            class="amount-input" min="0" 
-            step="1" 
-            value="40"
-            style="background-color: rgb(61,61,61); color: white;">
-        <input 
-            type="checkbox" 
-            class="cut-checkbox">
-        <span style="font-weight:bold;">Cut</span>
-    </label>
-
-
-
+    </div>
     <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>2nd Grade Teacher</h3>
+    <p>14480 Caribbean Dr</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="50"
+                style="
+                    border: 2.5px solid rgb(100,100,100); 
+                    display: inline-block; 
+                    padding: 0 0px; 
+                    line-height: 25px; 
+                    color:rgb(200, 224, 255); 
+                    background-color: rgb(61,61,61); 
+                    font-weight:bold; 
+                    border-radius: 12px;
+                    text-shadow: 0 0px 4px rgb(0,0,0);
+                    box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=14480+Caribbean+Dr,Gonzales,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>Toy Plane</h3>
+    <p>11075 Cambre Oaks Dr</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="40"
+                style="
+                    border: 2.5px solid rgb(100,100,100); 
+                    display: inline-block; 
+                    padding: 0 0px; 
+                    line-height: 25px; 
+                    color:rgb(200, 224, 255); 
+                    background-color: rgb(61,61,61); 
+                    font-weight:bold; 
+                    border-radius: 12px;
+                    text-shadow: 0 0px 4px rgb(0,0,0);
+                    box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=11075+Cambre+Oaks+Dr,Gonzales,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>Coopers Sister</h3>
+    <p>324 S Iberville Ave</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="40"
+                style="
+                    border: 2.5px solid rgb(100,100,100); 
+                    display: inline-block; 
+                    padding: 0 0px; 
+                    line-height: 25px; 
+                    color:rgb(200, 224, 255); 
+                    background-color: rgb(61,61,61); 
+                    font-weight:bold; 
+                    border-radius: 12px;
+                    text-shadow: 0 0px 4px rgb(0,0,0);
+                    box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=324+S+Iberville+Ave,Gonzales,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Lanoux</h3>
+        <p>1120 S Lanoux Ave</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=1120+S+Lanoux+Ave,Gonzales,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Onion</h3>
+        <p>12092 Cypress Ridge Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=12092+Cypress+Ridge+Dr,Geismar,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>BBL</h3>
+    <p>13379 Belle Reine Dr</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="50"
+                style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=13379+Belle+Reine+Dr,Geismar,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>Cable</h3>
+    <p>14027 Deep Creek Dr</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="50"
+                style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=14027+Deep+Creek+Dr,Gonzales,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>Flower Beds</h3>
+    <p>14479 Garnet Ave</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="40"
+                style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=14479+Garnet+Ave,Gonzales,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>Manchac</h3>
+    <p>18285 Manchac Pl S</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="50"
+                style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=18285+Manchac+Pl+S,Prairieville,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>Stuff in the Way</h3>
+    <p>36317 Cedar Wood Dr</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="40"
+                style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+        </label>
+        <a href="https://maps.apple.com/?address=36317+Cedar+Wood+Dr,Geismar,LA" style="display:inline-block;">
+            <img 
+                src="images/transparent_locate.png"
+                width="25"
+                height="25"
+                alt="Locate"
+                style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+    <div class="cut-indicator"></div>
+</div>
+
+<div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+    <input type="checkbox" class="cut-checkbox" style="display:none;">
+    <h3>No Window Door</h3>
+    <p>37343 Tilburg Pass</p>
+    <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <label style="margin-bottom: 0;">
+            <input 
+                type="number" 
+                class="amount-input" min="0" 
+                step="1" 
+                value="40"
+                style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=37343+Tilburg+Pass,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Blue House</h3>
+        <p>37412 E Hillside Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=37412+E+Hillside+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Bad Ditches</h3>
+        <p>38357 Dixie Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=38357+Dixie+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Backout</h3>
+        <p>42316 Bayou Narcisse Rd</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="50"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=42316+Bayou+Narcisse+Rd,Gonzales,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Slant</h3>
+        <p>13379 Belle Reine Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=13379+Belle+Reine+Dr,Geismar,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Coach</h3>
+        <p>39490 Rue Royale</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=39490+Rue+Royale,Gonzales,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Cooper Mom</h3>
+        <p>17566 Morsewood Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="50"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=17566+Morsewood+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Fishing Rod</h3>
+        <p>17490 Soaring Flight Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="50"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=17490+Soaring+Flight+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Rich Neighborhood</h3>
+        <p>Kaylin Cove</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="100"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=Kaylin+Cove,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Mt. Everest</h3>
+        <p>18532 Lake Harbor Ln</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="50"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=18532+Lake+Harbor+Ln,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>New Weedeater</h3>
+        <p>40020 Maddie Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=40020+Maddie+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>New Weedeater Dad</h3>
+        <p>40110 Todd Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="30"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=40110+Todd+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Two Driveway</h3>
+        <p>38331 Ibis Ave</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=38331+Ibis+Ave,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Megan</h3>
+        <p>17232 Chenier Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=17232+Chenier+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Mountain</h3>
+        <p>37165 Cobblestone Ave</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=37165+Cobblestone+Ave,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Mr. Jermey</h3>
+        <p>40152 Reese Ln</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=40152+Reese+Ln,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>No Fence</h3>
+        <p>13180 She Lee Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=13180+She+Lee+Dr,Gonzales,LA+70737" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Cop</h3>
+        <p>Belle Maison Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=Belle+Maison+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Presley</h3>
+        <p>40151 Trace Ave</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=40151+Trace+Ave,Prairieville,LA+70769" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Nerf Guns</h3>
+        <p>2912 S Meadowood Ave</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="40"
+                    style="
+                border: 2.5px solid rgb(100,100,100); 
+                display: inline-block; 
+                padding: 0 0px; 
+                line-height: 25px; 
+                color:rgb(200, 224, 255); 
+                background-color: rgb(61,61,61); 
+                font-weight:bold; 
+                border-radius: 12px;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=2912+S+Meadowood+Ave,Gonzales,LA+70737" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+            </a>
+        </div>
+        <br>
+        <div class="cut-indicator"></div>
+    </div>
+
+    <div class="yard-block yard-select-box" onclick="toggleYardCheck(this)">
+        <input type="checkbox" class="cut-checkbox" style="display:none;">
+        <h3>Cheyanne</h3>
+        <p>14518 Kelsey Dr</p>
+        <div style="display: flex; align-items: center; justify-content: center; gap: 8px;">
+            <label style="margin-bottom: 0;">
+                <input 
+                    type="number" 
+                    class="amount-input" min="0" 
+                    step="1" 
+                    value="30"
+                    style="
+                    border: 2.5px solid rgb(100,100,100); 
+                    display: inline-block; 
+                    padding: 0 0px; 
+                    line-height: 25px; 
+                    color:rgb(255, 255, 255); 
+                    background-color: rgb(61,61,61); 
+                    font-weight:bold; 
+                    border-radius: 12px;
+                    text-shadow: 0 0px 4px rgb(0,0,0);
+                    box-shadow: 0 0px 16px rgb(0,0,0);">
+            </label>
+            <a href="https://maps.apple.com/?address=14518+Kelsey+Dr,Prairieville,LA" style="display:inline-block;">
+                <img 
+                    src="images/transparent_locate.png"
+                    width="25"
+                    height="25"
+                    alt="Locate"
+                    style="transform: translate(0px,3px);">
+        </a>
+    </div>
+    <br>
+</div>
+</div>
 
     <div style="
     display: inline-block;
-    background: rgb(3, 17, 3);
+    background: rgb(5, 31, 63);
     border-radius: 18px;
     padding: 24px 18px;
-    box-shadow: 0 4px 16px #0003;
+    box-shadow: 0 8px 32px rgb(0, 0, 0);
     margin: 0 auto;
     margin-bottom: 24px;">
 
         <div id="yardscut-box" class="centered-box"
-        style="
-        border: 2.5px solid rgb(210, 210, 210); 
-        display: inline-block;
-        padding: 0 14px;
-        line-height: 25px; 
-        color:rgb(210, 210, 210);
-        background-color: rgb(61,61,61);
-        font-weight:bold;
-        border-radius: 12px;">
+            style="
+            border: 2.5px solid rgb(100,100,100); 
+            display: inline-block; 
+            padding: 0 14px; 
+            line-height: 25px; 
+            color:rgb(200, 224, 255); 
+            background-color: rgb(61,61,61); 
+            font-weight:bold; 
+            border-radius: 12px;
+            text-shadow: 0 0px 4px rgb(0,0,0);
+            box-shadow: 0 0px 16px rgb(0,0,0);">
             Yards Cut: 0
         </div>
     
     <br>
 
-        <h4 style="color:rgb(210, 210, 210); margin-bottom: 8px;">Pay:</h4>
+        <h4 style="color:rgb(200, 224, 255); 
+        margin-bottom: 8px;">Pay:</h4>
+
         <div id="total-box" class="centered-box" 
-            style="border: 2.5px solid rgb(210, 210, 210); display: inline-block; padding: 0 14px; line-height: 25px; color:rgb(210, 210, 210); background-color: rgb(61, 61, 61); font-weight:bold; border-radius: 12px;">
+            style="
+            border: 2.5px solid rgb(100,100,100); 
+            display: inline-block; 
+            padding: 0 14px; 
+            line-height: 25px; 
+            color:rgb(200, 224, 255); 
+            background-color: rgb(61,61,61); 
+            font-weight:bold; 
+            border-radius: 12px;
+            text-shadow: 0 0px 4px rgb(0,0,0);
+            box-shadow: 0 0px 16px rgb(0,0,0);">
             Total: $0
         </div>
-        <br><br>
+        <br>
+        <br>
         <div id="mycut-box" class="centered-box"
-            style="border: 2.5px solid rgb(94, 255, 0); display: inline-block; padding: 0 14px; line-height: 25px; color:rgb(94, 255, 0); background-color: rgb(61, 61, 61); font-weight:bold; border-radius: 12px;">
+            style="
+            border: 2.5px solid rgb(61, 167, 0); 
+            display: inline-block; 
+            padding: 0 14px; 
+            line-height: 25px; 
+            color:rgb(200, 224, 255); 
+            background-color: rgb(61, 167, 0); 
+            font-weight:bold; 
+            border-radius: 12px;
+            text-shadow: 0 0px 4px rgb(0,0,0);
+            box-shadow: 0 0px 16px rgb(0,0,0);">
             My Cut: $0
         </div>
-        <br><br>
+        <br>
+        <br>
         <div id="cooperscut-box" class="centered-box"
-            style="border: 2.5px solid rgb(255, 0, 0); display: inline-block; padding: 0 14px; line-height: 25px; color:rgb(255, 0, 0); background-color: rgb(61, 61, 61); font-weight:bold; border-radius: 12px;">
+            style="
+            border: 2.5px solid rgb(167, 0, 0); 
+            display: inline-block; 
+            padding: 0 14px; 
+            line-height: 25px; 
+            color:rgb(200, 224, 255); 
+            background-color: rgb(167, 0, 0); 
+            font-weight:bold; 
+            border-radius: 12px;
+            text-shadow: 0 0px 4px rgb(0,0,0);
+            box-shadow: 0 0px 16px rgb(0,0,0);">
             Cooper's Cut: $0
         </div>
     </div>
 
     <br>
 
-    <div style="
+    <!--<div style="
     display: inline-block;
     background: rgb(3, 17, 3);
     border-radius: 18px;
     padding: 18px 18px 10px 18px;
-    box-shadow: 0 4px 16px #0003;
+    box-shadow: 0 8px 32px rgb(0, 0, 0);
     margin: 0 auto 24px auto;
 ">
     <label for="effective-date" style="color:rgb(210,210,210); font-weight:bold; margin-bottom:8px; display:block;">
@@ -1083,36 +1653,130 @@
     <button onclick="saveLog()" class="centered-box" style="margin-left:10px; padding:6px 18px;">Save Yards</button>
 </div>
 
-    <!-- 2. BUTTONS BOX -->
+    2. BUTTONS BOX -->
     <div style="
         display: inline-block;
-        background: rgb(3, 17, 3);
+        background: rgb(5, 31, 63);
         border-radius: 18px;
-        padding: 24px 18px;
-        box-shadow: 0 4px 16px #0003;
+        padding: 24px 20px;
+        box-shadow: 0 8px 32px rgb(0, 0, 0);
         margin: 0 auto;
         margin-bottom: 24px;
     ">
         <button onclick="resetCheckboxes()" 
             class="centered-box" 
-            style="display:block; background-color: rgb(61,61,61); color: rgb(210, 210, 210); border: 2px solid rgb(210, 210, 210); border-radius: 6px; padding: 6px 18px; font-size: 16px; font-weight:bold;">
+            style="display:block;
+                background-color: rgb(61,61,61);
+                color: rgb(200, 224, 255);
+                border: 2.5px solid rgb(100,100,100);
+                border-radius: 12px;
+                padding: 6px 18px;
+                font-size: 16px;
+                font-weight:bold;
+                text-shadow:  0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);
+                margin: 0 auto 10px auto;
+                transition: 
+                    box-shadow 0.18s, 
+                    border-color 0.18s, 
+                    background 0.18s,
+                    color 0.18s;
+            "
+            onmousedown="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='inset 0 4px 18px #000c, inset 0 1px 8px #222';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(200, 224, 255)';"
+            onmouseup="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='0 0px 16px rgb(0,0,0)';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(200, 224, 255)';"
+            onmouseleave="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='0 0px 16px rgb(0,0,0)';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(200, 224, 255)';"
+        >
             Reset
         </button>
         <br>
         <button onclick="saveLog()" 
             class="centered-box" 
-            style="display:block; background-color: rgb(61,61,61); color: rgb(210, 210, 210); border: 2px solid rgb(210, 210, 210); border-radius: 6px; padding: 6px 18px; font-size: 16px; font-weight:bold;">
+            style="display:block;
+                background-color: rgb(61,61,61);
+                color: rgb(200, 224, 255);
+                border: 2.5px solid rgb(100,100,100);
+                border-radius: 12px;
+                padding: 6px 18px;
+                font-size: 16px;
+                font-weight:bold;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);
+                margin: 0 auto 10px auto;
+                transition: 
+                    box-shadow 0.18s, 
+                    border-color 0.18s, 
+                    background 0.18s,
+                    color 0.18s;
+            "
+            onmousedown="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='inset 0 4px 18px #000c, inset 0 1px 8px #222';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(200, 224, 255)';"
+            onmouseup="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='0 0px 16px rgb(0,0,0)';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(200, 224, 255)';"
+            onmouseleave="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='0 0px 16px rgb(0,0,0)';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(200, 224, 255)';"
+        >
             Save Yards
         </button>
         <br>
         <button onclick="clearLogs()" 
             class="centered-box" 
-            style="display:block; background-color: rgb(61,61,61); color: rgb(210, 210, 210); border: 2px solid rgb(210, 210, 210); border-radius: 6px; padding: 6px 18px; font-size: 16px; font-weight:bold;">
+            style="display:block;
+                background-color: rgb(61,61,61);
+                color: rgb(200, 224, 255);
+                border: 2.5px solid rgb(100,100,100);
+                border-radius: 12px;
+                padding: 6px 18px;
+                font-size: 16px;
+                font-weight:bold;
+                text-shadow: 0 0px 4px rgb(0,0,0);
+                box-shadow: 0 0px 16px rgb(0,0,0);
+                margin: 0 auto 10px auto;
+                transition: 
+                    box-shadow 0.18s, 
+                    border-color 0.18s, 
+                    background 0.18s,
+                    color 0.18s;
+            "
+            onmousedown="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='inset 0 4px 18px #000c, inset 0 1px 8px #222';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(255,255,255)';"
+            onmouseup="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='0 0px 16px rgb(0,0,0)';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(255,255,255)';"
+            onmouseleave="
+                this.style.backgroundColor='rgb(61,61,61)';
+                this.style.boxShadow='0 0px 16px rgb(0,0,0)';
+                this.style.borderColor='rgb(100,100,100)';
+                this.style.color='rgb(200, 224, 255)';"
+        >
             Clear History
         </button>
     </div>
-
-    <br>
 
     <div id="logs-box" class="centered-box" style="margin-top:10px; color:rgb(210,210,210);"></div>
 
@@ -1134,7 +1798,8 @@
             <button onclick="closeDeleteModal()" style="background:rgb(61,61,61); color:rgb(210,210,210); border:1px solid rgb(210,210,210); border-radius:5px; padding:6px 18px;">Cancel</button>
         </div>
     </div>
+</body>
+</html>
 
-</div>
 </body>
 </html>
